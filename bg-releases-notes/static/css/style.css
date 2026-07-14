@@ -40,6 +40,105 @@
     
     --font-sans: 'Inter', sans-serif;
     --font-heading: 'Outfit', sans-serif;
+    
+    /* Component specific overrides (Dark Mode defaults) */
+    --header-bg: rgba(13, 18, 30, 0.45);
+    --input-bg: rgba(5, 7, 10, 0.4);
+    --logo-text-color: linear-gradient(to right, #ffffff, #cbd5e1);
+    --overlay-bg: rgba(8, 11, 17, 0.85);
+    --card-selected-bg: rgba(22, 38, 70, 0.45);
+    --btn-refresh-bg: rgba(255, 255, 255, 0.05);
+    --pill-active-bg: linear-gradient(135deg, rgba(79, 70, 229, 0.2), rgba(6, 182, 212, 0.15));
+    --pill-active-text: #ffffff;
+    --scrollbar-thumb: rgba(255, 255, 255, 0.1);
+}
+
+/* Light Mode Variables Override */
+[data-theme="light"] {
+    --bg-dark: #f8fafc;
+    --bg-darker: #f1f5f9;
+    --card-bg: rgba(255, 255, 255, 0.75);
+    --card-border: rgba(15, 23, 42, 0.08);
+    --card-hover-border: rgba(79, 70, 229, 0.3);
+    
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    
+    --primary-glow: rgba(79, 70, 229, 0.06);
+    --accent-cyan-bg: rgba(6, 182, 212, 0.06);
+    
+    /* Variable Overrides for Light Mode components */
+    --header-bg: rgba(255, 255, 255, 0.65);
+    --input-bg: rgba(15, 23, 42, 0.03);
+    --logo-text-color: linear-gradient(to right, #0f172a, #334155);
+    --overlay-bg: rgba(248, 250, 252, 0.85);
+    --card-selected-bg: rgba(29, 155, 240, 0.06);
+    --btn-refresh-bg: rgba(15, 23, 42, 0.04);
+    --pill-active-bg: linear-gradient(135deg, var(--primary), var(--accent-cyan));
+    --pill-active-text: #ffffff;
+    --scrollbar-thumb: rgba(15, 23, 42, 0.15);
+}
+
+/* Theme Toggle Button */
+.btn-theme-toggle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--card-border);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.btn-theme-toggle svg {
+    width: 18px;
+    height: 18px;
+    position: absolute;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease;
+}
+
+/* Dark mode state (Sun icon shown, Moon icon hidden) */
+[data-theme="dark"] .btn-theme-toggle .icon-sun,
+:root:not([data-theme="light"]) .btn-theme-toggle .icon-sun {
+    transform: rotate(0deg) scale(1);
+    opacity: 1;
+}
+
+[data-theme="dark"] .btn-theme-toggle .icon-moon,
+:root:not([data-theme="light"]) .btn-theme-toggle .icon-moon {
+    transform: rotate(90deg) scale(0);
+    opacity: 0;
+}
+
+/* Light mode state (Moon icon shown, Sun icon hidden) */
+[data-theme="light"] .btn-theme-toggle .icon-sun {
+    transform: rotate(-90deg) scale(0);
+    opacity: 0;
+}
+
+[data-theme="light"] .btn-theme-toggle .icon-moon {
+    transform: rotate(0deg) scale(1);
+    opacity: 1;
+}
+
+[data-theme="light"] .btn-theme-toggle {
+    background: rgba(15, 23, 42, 0.04);
+}
+[data-theme="light"] .btn-theme-toggle:hover {
+    background: rgba(15, 23, 42, 0.08);
 }
 
 * {
@@ -69,7 +168,7 @@ body {
     background: var(--bg-darker);
 }
 ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--scrollbar-thumb);
     border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
@@ -88,7 +187,7 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 16px 28px;
-    background: rgba(13, 18, 30, 0.45);
+    background: var(--header-bg);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--card-border);
@@ -139,7 +238,7 @@ body {
     font-family: var(--font-heading);
     font-size: 22px;
     font-weight: 700;
-    background: linear-gradient(to right, #ffffff, #cbd5e1);
+    background: var(--logo-text-color);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     letter-spacing: -0.5px;
@@ -235,7 +334,7 @@ body {
 }
 
 .btn-refresh {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--btn-refresh-bg);
     border: 1px solid var(--card-border);
     color: var(--text-primary);
 }
@@ -428,7 +527,7 @@ body {
 
 .search-box input {
     width: 100%;
-    background: rgba(5, 7, 10, 0.4);
+    background: var(--input-bg);
     border: 1px solid var(--card-border);
     border-radius: var(--border-radius-md);
     padding: 12px 14px 12px 40px;
@@ -501,9 +600,9 @@ body {
 }
 
 .filter-pill.active {
-    background: linear-gradient(135deg, rgba(79, 70, 229, 0.2), rgba(6, 182, 212, 0.15));
+    background: var(--pill-active-bg);
     border-color: var(--primary);
-    color: white;
+    color: var(--pill-active-text);
     font-weight: 500;
     box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
 }
@@ -562,7 +661,7 @@ body {
 }
 
 .tweet-box-wrapper {
-    background: rgba(5, 7, 10, 0.4);
+    background: var(--input-bg);
     border: 1px solid var(--card-border);
     border-radius: var(--border-radius-md);
     padding: 12px;
@@ -711,7 +810,7 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(8, 11, 17, 0.85);
+    background: var(--overlay-bg);
     backdrop-filter: blur(4px);
     display: flex;
     flex-direction: column;
@@ -860,7 +959,7 @@ body {
     font-family: var(--font-heading);
     font-size: 16px;
     font-weight: 700;
-    color: white;
+    color: var(--text-primary);
     letter-spacing: 0.5px;
 }
 
@@ -890,7 +989,7 @@ body {
 
 .release-card.selected {
     border-color: var(--twitter-blue);
-    background: rgba(22, 38, 70, 0.45);
+    background: var(--card-selected-bg);
     box-shadow: 0 0 20px rgba(29, 155, 240, 0.15);
 }
 
@@ -1012,6 +1111,12 @@ body {
     background: rgba(29, 155, 240, 0.08);
 }
 
+.btn-icon.btn-card-copy:hover {
+    color: var(--color-res);
+    border-color: rgba(16, 185, 129, 0.3);
+    background: rgba(16, 185, 129, 0.08);
+}
+
 .btn-icon svg {
     width: 14px;
     height: 14px;
@@ -1020,7 +1125,7 @@ body {
 /* Card Content Styling */
 .card-body {
     font-size: 14px;
-    color: #e5e7eb;
+    color: var(--text-primary);
     line-height: 1.6;
 }
 

@@ -12,6 +12,11 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script>
+        // Immediately set the theme from localStorage to prevent flash
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
 </head>
 <body>
     <div class="app-container">
@@ -33,9 +38,17 @@
                     <span class="pulse-dot"></span>
                     <span class="status-text">Connected</span>
                 </div>
+                <button id="btn-export-csv" class="btn btn-secondary" title="Export current releases to CSV">
+                    <i data-lucide="download"></i>
+                    <span>Export CSV</span>
+                </button>
                 <button id="btn-refresh" class="btn btn-refresh" title="Force Refresh Feed">
                     <i data-lucide="rotate-cw" class="icon-refresh"></i>
                     <span>Refresh</span>
+                </button>
+                <button id="btn-theme-toggle" class="btn-theme-toggle" title="Toggle Light/Dark Mode">
+                    <i data-lucide="sun" class="icon-sun"></i>
+                    <i data-lucide="moon" class="icon-moon"></i>
                 </button>
             </div>
         </header>

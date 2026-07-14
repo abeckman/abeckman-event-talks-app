@@ -34,6 +34,8 @@ const btnRetry = document.getElementById('btn-retry');
 const btnResetFilters = document.getElementById('btn-reset-filters');
 const releasesTimeline = document.getElementById('releases-timeline');
 const feedResultsCount = document.getElementById('feed-results-count');
+const btnExportCSV = document.getElementById('btn-export-csv');
+const btnThemeToggle = document.getElementById('btn-theme-toggle');
 
 // Initialize Application
 document.addEventListener('DOMContentLoaded', () => {
@@ -84,6 +86,16 @@ function setupEventListeners() {
 
     // Reset filters buttons
     btnResetFilters.addEventListener('click', resetAllFilters);
+
+    // Export to CSV button
+    if (btnExportCSV) {
+        btnExportCSV.addEventListener('click', exportToCSV);
+    }
+
+    // Theme toggle button
+    if (btnThemeToggle) {
+        btnThemeToggle.addEventListener('click', toggleTheme);
+    }
 
     // Tweet text manual input editing
     tweetTextarea.addEventListener('input', () => {
@@ -317,7 +329,8 @@ function createReleaseCard(item) {
     // Copy Text Button
     card.querySelector('.btn-card-copy').addEventListener('click', (e) => {
         e.stopPropagation();
-        copyToClipboard(item.content_text, card.querySelector('.btn-card-copy'));
+        const formattedText = getFormattedText(item.content_html);
+        copyToClipboard(formattedText, card.querySelector('.btn-card-copy'));
     });
     
     return card;
@@ -478,6 +491,88 @@ function copyToClipboard(text, buttonEl) {
     });
 }
 
+// Get formatted plain text from HTML (preserving list layout and links)
+function getFormattedText(html) {
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    
+    // Format anchor tags as "Text (URL)"
+    const links = tempDiv.querySelectorAll('a');
+    links.forEach(a => {
+        let href = a.getAttribute('href') || '';
+        if (href.startsWith('/')) {
+            href = 'https://cloud.google.com' + href;
+        }
+        if (href && a.textContent && !a.textContent.includes(href)) {
+            a.textContent = `${a.textContent} (${href})`;
+        }
+    });
+    
+    // innerText preserves standard visual layouts (newlines for lists/paragraphs)
+    return tempDiv.innerText.trim();
+}
+
+// Export current filtered releases to CSV
+function exportToCSV() {
+    if (!filteredReleases || filteredReleases.length === 0) {
+        alert("No release notes available to export.");
+        return;
+    }
+    
+    // Define headers
+    const headers = ["Date", "Category", "Content", "Link"];
+    
+    // Map releases to rows
+    const rows = filteredReleases.map(item => [
+        item.date,
+        item.type,
+        getFormattedText(item.content_html),
+        item.link
+    ]);
+    
+    // Helper function to escape CSV values correctly
+    const escapeCSV = (val) => {
+        if (val === null || val === undefined) return '';
+        let str = String(val);
+        // Replace all double quotes with two double quotes
+        str = str.replace(/"/g, '""');
+        // Wrap in quotes if it contains comma, newline, carriage return, or double quotes
+        if (str.includes(',') || str.includes('\n') || str.includes('\r') || str.includes('"')) {
+            str = `"${str}"`;
+        }
+        return str;
+    };
+    
+    // Combine headers and rows
+    const csvContent = [
+        headers.map(escapeCSV).join(','),
+        ...rows.map(row => row.map(escapeCSV).join(','))
+    ].join('\r\n');
+    
+    // Create blob and download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    
+    // Generate file name with current date
+    const dateStr = new Date().toISOString().slice(0, 10);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `bigquery_release_notes_${dateStr}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Toggle Dark/Light Theme
+function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+}
+
 // Loader State Management
 function showLoading() {
     feedLoading.classList.remove('hidden');
@@ -486,6 +581,7 @@ function showLoading() {
     releasesTimeline.innerHTML = '';
     btnRefresh.classList.add('loading');
     btnRefresh.disabled = true;
+    if (btnExportCSV) btnExportCSV.disabled = true;
     feedResultsCount.textContent = 'Updating...';
 }
 
@@ -495,6 +591,7 @@ function hideOverlays() {
     feedEmpty.classList.add('hidden');
     btnRefresh.classList.remove('loading');
     btnRefresh.disabled = false;
+    if (btnExportCSV) btnExportCSV.disabled = false;
 }
 
 function showError(msg) {
