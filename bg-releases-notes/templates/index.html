@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BigQuery Release Explorer</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo-container">
+                <div class="logo-icon-wrapper">
+                    <i data-lucide="database" class="logo-icon"></i>
+                    <div class="logo-glow"></div>
+                </div>
+                <div class="logo-text">
+                    <h1>BigQuery</h1>
+                    <span class="sub-logo">Release Explorer</span>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <div id="connection-status" class="status-badge success">
+                    <span class="pulse-dot"></span>
+                    <span class="status-text">Connected</span>
+                </div>
+                <button id="btn-refresh" class="btn btn-refresh" title="Force Refresh Feed">
+                    <i data-lucide="rotate-cw" class="icon-refresh"></i>
+                    <span>Refresh</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Stats Section -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon-wrapper feat">
+                    <i data-lucide="sparkles"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-label">Features</span>
+                    <h3 id="stat-features">0</h3>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon-wrapper sec">
+                    <i data-lucide="shield-alert"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-label">Security Alerts</span>
+                    <h3 id="stat-security">0</h3>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon-wrapper chg">
+                    <i data-lucide="git-commit"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-label">Changes & Updates</span>
+                    <h3 id="stat-changes">0</h3>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon-wrapper clock">
+                    <i data-lucide="calendar"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-label">Last Updated Feed</span>
+                    <h3 id="stat-updated" class="time-text">-</h3>
+                </div>
+            </div>
+        </section>
+
+        <!-- Warning message alert -->
+        <div id="warning-banner" class="warning-banner hidden">
+            <i data-lucide="alert-triangle"></i>
+            <span id="warning-message"></span>
+            <button id="btn-close-warning" class="btn-close-warning">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+
+        <!-- Main Layout -->
+        <main class="main-layout">
+            
+            <!-- Left Sidebar: Controls & Tweet Composer -->
+            <aside class="sidebar">
+                
+                <!-- Filter Section -->
+                <div class="sidebar-widget">
+                    <h2 class="widget-title"><i data-lucide="sliders-horizontal"></i> Filters</h2>
+                    
+                    <div class="search-box">
+                        <i data-lucide="search" class="search-icon"></i>
+                        <input type="text" id="search-input" placeholder="Search release notes...">
+                        <button id="search-clear" class="search-clear-btn hidden">
+                            <i data-lucide="x"></i>
+                        </button>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">Categories</label>
+                        <div class="category-filters">
+                            <button class="filter-pill active" data-filter="all">All</button>
+                            <button class="filter-pill" data-filter="Feature"><span class="dot feat"></span>Feature</button>
+                            <button class="filter-pill" data-filter="Security"><span class="dot sec"></span>Security</button>
+                            <button class="filter-pill" data-filter="Changed"><span class="dot chg"></span>Changed</button>
+                            <button class="filter-pill" data-filter="Resolved"><span class="dot res"></span>Resolved</button>
+                            <button class="filter-pill" data-filter="Other"><span class="dot other"></span>Other</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tweet Composer Widget -->
+                <div class="sidebar-widget tweet-composer-widget">
+                    <h2 class="widget-title"><i data-lucide="twitter"></i> Tweet Composer</h2>
+                    
+                    <div class="composer-instructions">
+                        Select updates from the feed or write your own. Combined selected items will populate below.
+                    </div>
+                    
+                    <div class="selected-items-summary">
+                        <span id="selected-count-label">0 updates selected</span>
+                        <button id="btn-clear-selection" class="btn-link hidden">Clear selection</button>
+                    </div>
+
+                    <div class="tweet-box-wrapper">
+                        <textarea id="tweet-textarea" rows="6" placeholder="Select release notes from the feed to construct your tweet, or write something directly here..."></textarea>
+                        
+                        <div class="composer-footer">
+                            <div class="char-count-wrapper">
+                                <span id="char-counter">0</span>/280
+                                <div class="char-progress-bar">
+                                    <div id="char-progress-fill" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            
+                            <button id="btn-tweet" class="btn btn-tweet" disabled>
+                                <i data-lucide="send"></i>
+                                <span>Tweet on X</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="tweet-preview-notice hidden" id="tweet-warning-limit">
+                        <i data-lucide="info"></i>
+                        <span>Your tweet exceeds 280 characters. It will be truncated or post as a thread.</span>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Right Column: Releases Feed -->
+            <section class="feed-section">
+                <div class="feed-header">
+                    <h2 class="feed-title"><i data-lucide="rss"></i> Release Feed</h2>
+                    <span id="feed-results-count" class="results-count">Loading release notes...</span>
+                </div>
+
+                <!-- Loading State -->
+                <div id="feed-loading" class="feed-state-overlay">
+                    <div class="spinner-container">
+                        <div class="double-bounce1"></div>
+                        <div class="double-bounce2"></div>
+                    </div>
+                    <p>Fetching latest release notes from Google Cloud...</p>
+                </div>
+
+                <!-- Error State -->
+                <div id="feed-error" class="feed-state-overlay hidden">
+                    <div class="error-icon-wrapper">
+                        <i data-lucide="alert-octagon"></i>
+                    </div>
+                    <h3>Failed to Fetch Releases</h3>
+                    <p id="error-description">Please check your network connection and try again.</p>
+                    <button id="btn-retry" class="btn btn-primary">
+                        <i data-lucide="rotate-cw"></i> Retry Fetch
+                    </button>
+                </div>
+
+                <!-- Empty State -->
+                <div id="feed-empty" class="feed-state-overlay hidden">
+                    <div class="empty-icon-wrapper">
+                        <i data-lucide="inbox"></i>
+                    </div>
+                    <h3>No Releases Found</h3>
+                    <p>No release notes match your search query or filters.</p>
+                    <button id="btn-reset-filters" class="btn btn-secondary">Clear Filters</button>
+                </div>
+
+                <!-- Actual Feed Cards -->
+                <div id="releases-timeline" class="releases-timeline">
+                    <!-- Dynamic updates group by date will be inserted here -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

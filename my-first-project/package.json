@@ -1,0 +1,16 @@
+{
+  "name": "gnews-cli",
+  "version": "1.0.0",
+  "description": "Google News CLI Tool",
+  "type": "module",
+  "main": "gnews.js",
+  "bin": {
+    "gnews": "./gnews.js"
+  },
+  "scripts": {
+    "start": "node gnews.js"
+  },
+  "dependencies": {
+    "rss-parser": "^3.13.0"
+  }
+}

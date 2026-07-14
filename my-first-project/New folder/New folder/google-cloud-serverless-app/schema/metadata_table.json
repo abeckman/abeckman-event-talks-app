@@ -1,0 +1,62 @@
+[
+  {
+    "name": "filename",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Original filename of the uploaded document"
+  },
+  {
+    "name": "gcs_path",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Full GCS URI (gs://bucket/object) of the uploaded file"
+  },
+  {
+    "name": "file_size_bytes",
+    "type": "INTEGER",
+    "mode": "NULLABLE",
+    "description": "Size of the uploaded file in bytes"
+  },
+  {
+    "name": "upload_timestamp",
+    "type": "TIMESTAMP",
+    "mode": "NULLABLE",
+    "description": "Timestamp when the file was uploaded to GCS (from GCS event metadata)"
+  },
+  {
+    "name": "word_count",
+    "type": "INTEGER",
+    "mode": "NULLABLE",
+    "description": "Estimated word count (decoded as UTF-8; falls back to 0 for binary files)"
+  },
+  {
+    "name": "page_count",
+    "type": "INTEGER",
+    "mode": "NULLABLE",
+    "description": "Estimated page count derived from file size heuristic"
+  },
+  {
+    "name": "detected_language",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Simulated detected language code (e.g. 'en', 'fr', 'de')"
+  },
+  {
+    "name": "tags",
+    "type": "STRING",
+    "mode": "REPEATED",
+    "description": "Auto-generated tags derived from filename tokens"
+  },
+  {
+    "name": "confidence_score",
+    "type": "FLOAT",
+    "mode": "NULLABLE",
+    "description": "Simulated OCR confidence score in range [0.70, 1.00]"
+  },
+  {
+    "name": "processed_at",
+    "type": "TIMESTAMP",
+    "mode": "REQUIRED",
+    "description": "Timestamp when the Cloud Run processor handled this document"
+  }
+]
